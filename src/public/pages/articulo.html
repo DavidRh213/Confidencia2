@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Lee artículos sobre seguridad, privacidad y confidencialidad de datos en Confidencialidad.">
+    <meta name="theme-color" content="#121212">
+    <title>Artículo - Confidencialidad</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <div id="header-container"></div>
+    <main class="container" id="main-content" role="main">
+        
+        <div id="article-content" role="article">
+            <!-- Renderizado desde articulo.js -->
+        </div>
+
+        <div class="card mt-2" style="max-width:800px; margin: 2rem auto;" role="region" aria-label="Sección de comentarios">
+            <h2 id="comments-count">Comentarios</h2>
+
+            <div id="comment-form-container">
+                <!-- Se mostrará formulario si está logueado -->
+            </div>
+
+            <div id="comments-list" class="comments-list mt-2">
+                <!-- Renderizado desde articulo.js -->
+            </div>
+        </div>
+
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/articulo.js"></script>
+    <script>
+        fetch('/pages/header.html')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('header-container').innerHTML = html;
+                checkAuth().then(user => {
+                    loadArticleData(user);
+                });
+            });
+    </script>
+</body>
+</html>

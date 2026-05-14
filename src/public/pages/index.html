@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Confidencialidad - Blog de artículos sobre seguridad, privacidad y confidencialidad de datos.">
+    <meta name="theme-color" content="#121212">
+    <title>Inicio - Confidencialidad</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <div id="header-container"></div>
+    <main class="container" id="main-content" role="main">
+        <div class="mb-2 text-center">
+            <h1>Últimos Artículos</h1>
+            <p class="text-muted">Explora nuestras últimas publicaciones.</p>
+        </div>
+
+        <form id="searchForm" class="card mb-2 d-flex gap-1 p-2" role="search">
+            <label for="searchInput" style="margin:0; display:none;">Buscar artículos</label>
+            <input type="text" id="searchInput" placeholder="Buscar artículos por título o contenido..." style="flex:1;" aria-label="Buscador de artículos">
+            <button type="submit" class="btn btn-primary" aria-label="Realizar búsqueda">Buscar</button>
+        </form>
+
+        <div id="articles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;" role="region" aria-label="Artículos encontrados">
+            <!-- Renderizado desde index.js -->
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/index.js"></script>
+    <script>
+        fetch('/pages/header.html')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('header-container').innerHTML = html;
+                checkAuth();
+                loadArticles();
+            });
+            
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            loadArticles(document.getElementById('searchInput').value);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Panel de administración - Gestiona usuarios, roles, permisos y auditoría.">
+    <meta name="theme-color" content="#121212">
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <div id="header-container"></div>
+    <main class="container" id="main-content" role="main">
+        <h1>Panel de Administración</h1>
+        
+        <div id="admin-content" style="display:none;">
+            <!-- Solicitudes de Editor -->
+            <div class="card mb-2">
+                <h2>Solicitudes de Editor</h2>
+                <div class="mt-1">
+                    <div id="editor-requests-tabs" class="d-flex flex-wrap gap-1 mb-1" style="border-bottom: 1px solid var(--border);">
+                        <button class="btn tab-btn active" onclick="filterRequestsByStatus('todos')" aria-label="Ver todas las solicitudes" aria-selected="true">Todas</button>
+                        <button class="btn tab-btn" onclick="filterRequestsByStatus('pendiente')" aria-label="Ver solicitudes pendientes" aria-selected="false">Pendientes</button>
+                        <button class="btn tab-btn" onclick="filterRequestsByStatus('aprobada')" aria-label="Ver solicitudes aprobadas" aria-selected="false">Aprobadas</button>
+                        <button class="btn tab-btn" onclick="filterRequestsByStatus('rechazada')" aria-label="Ver solicitudes rechazadas" aria-selected="false">Rechazadas</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="mt-1" id="editor-requests-table" role="grid" aria-label="Tabla de solicitudes de editor">
+                            <thead>
+                                <tr role="row">
+                                    <th role="columnheader">ID</th>
+                                    <th role="columnheader">Usuario</th>
+                                    <th role="columnheader">Email</th>
+                                    <th role="columnheader">Motivo</th>
+                                    <th role="columnheader">Estado</th>
+                                    <th role="columnheader">Fecha Solicitud</th>
+                                    <th role="columnheader">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuarios -->
+            <div class="card mb-2">
+                <h2>Gestión de Usuarios</h2>
+                <div class="table-responsive">
+                    <table class="mt-1" id="users-table" role="grid" aria-label="Tabla de usuarios">
+                        <thead>
+                            <tr role="row">
+                                <th role="columnheader">ID</th>
+                                <th role="columnheader">Nombre</th>
+                                <th role="columnheader">Email</th>
+                                <th role="columnheader">Rol Actual</th>
+                                <th role="columnheader">Cambiar Rol</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Roles -->
+            <div class="card mb-2">
+                <h2>Roles y Permisos</h2>
+                <div id="roles-container" class="mt-1" role="region" aria-label="Gestión de roles y permisos"></div>
+                
+                <h3 class="mt-2 text-primary">Crear Nuevo Rol</h3>
+                <form id="createRoleForm" class="d-flex gap-1" role="form" aria-label="Formulario para crear nuevo rol">
+                    <input type="text" id="newRoleName" placeholder="Nombre del rol" required aria-label="Nombre del nuevo rol">
+                    <button type="submit" class="btn btn-primary" aria-label="Crear nuevo rol">Crear</button>
+                </form>
+            </div>
+
+            <!-- Auditoría -->
+            <div class="card mb-2">
+                <h2>Copia de Seguridad (Backup)</h2>
+                <div class="mt-1">
+                    <p>Realiza un respaldo completo de la base de datos en el USB de forma manual. Recuerda que el sistema realiza un respaldo automático cada día a las 8:00 PM.</p>
+                    <button id="btn-backup" class="btn btn-primary mt-1" onclick="performBackup()" aria-label="Realizar respaldo ahora">
+                        <span id="backup-text">Realizar Respaldo Ahora</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Auditoría -->
+            <div class="card">
+                <h2>Registro de Auditoría</h2>
+                <div class="table-responsive">
+                    <table class="mt-1" id="audit-table" role="grid" aria-label="Tabla de auditoría">
+                        <thead>
+                            <tr role="row">
+                                <th role="columnheader">ID</th>
+                                <th role="columnheader">Fecha</th>
+                                <th role="columnheader">Usuario</th>
+                                <th role="columnheader">Tabla</th>
+                                <th role="columnheader">Acción</th>
+                                <th role="columnheader">Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        fetch('/pages/header.html')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('header-container').innerHTML = html;
+                checkAuth().then(user => {
+                    requireRole([1]); // Solo admin
+                    loadAdminData();
+                    loadEditorRequests();
+                    document.getElementById('admin-content').style.display = 'block';
+                });
+            });
+    </script>
+</body>
+</html>

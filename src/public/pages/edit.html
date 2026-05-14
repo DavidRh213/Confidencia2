@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Edita tu artículo en Confidencialidad.">
+    <meta name="theme-color" content="#121212">
+    <title>Editar Artículo - Confidencialidad</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <div id="header-container"></div>
+    <main class="container" id="main-content" role="main">
+        <div class="card">
+            <div class="d-flex justify-between align-center mb-2">
+                <h2>Editar Artículo</h2>
+                <a href="/pages/editor.html" class="btn" aria-label="Volver al panel del editor">Volver</a>
+            </div>
+
+            <form id="editArticleForm" onsubmit="updateArticle(event)" role="form" aria-label="Formulario de edición de artículo">
+                <fieldset>
+                    <legend style="display:none;">Información del artículo</legend>
+                    <div class="form-group mt-1">
+                        <label for="titulo">Título</label>
+                        <input type="text" id="titulo" required aria-required="true" aria-label="Título del artículo">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_categoria">Categoría</label>
+                        <select id="id_categoria" aria-label="Categoría del artículo"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="imagen">URL Imagen</label>
+                        <input type="text" id="imagen" aria-label="URL de la imagen">
+                    </div>
+                    <div class="form-group">
+                        <label for="introduccion">Introducción</label>
+                        <textarea id="introduccion" rows="2" aria-label="Introducción del artículo"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="contenido">Contenido (Markdown/HTML)</label>
+                        <textarea id="contenido" rows="10" required aria-required="true" aria-label="Contenido completo del artículo"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" aria-label="Actualizar cambios">Actualizar Cambios</button>
+                </fieldset>
+            </form>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id');
+
+        fetch('/pages/header.html')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('header-container').innerHTML = html;
+                checkAuth().then(() => {
+                    requireRole([1, 3]);
+                    if(articleId) loadEditData(articleId);
+                });
+            });
+
+        async function loadEditData(id) {
+            try {
+                const res = await fetch(`/api/blog/editor/edit/${id}`);
+                const data = await res.json();
+                if(!data.success) return Swal.fire({icon:'error', text:data.message});
+
+                document.getElementById('titulo').value = data.article.titulo;
+                document.getElementById('imagen').value = data.article.imagen || '';
+                document.getElementById('introduccion').value = data.article.introduccion || '';
+                document.getElementById('contenido').value = data.article.contenido;
+                
+                const catSelect = document.getElementById('id_categoria');
+                catSelect.innerHTML = data.categories.map(c => 
+                    `<option value="${c.idcategoria}" ${data.article.id_categoria === c.idcategoria ? 'selected' : ''}>${c.Nombre}</option>`
+                ).join('');
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function updateArticle(e) {
+            e.preventDefault();
+            const payload = {
+                titulo: document.getElementById('titulo').value,
+                id_categoria: document.getElementById('id_categoria').value,
+                imagen: document.getElementById('imagen').value,
+                introduccion: document.getElementById('introduccion').value,
+                contenido: document.getElementById('contenido').value
+            };
+
+            const res = await fetch(`/api/blog/editor/edit/${articleId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if(data.success) {
+                Swal.fire({icon:'success', title:'Actualizado'}).then(() => window.location.href='/pages/editor.html');
+            } else {
+                Swal.fire({icon:'error', text:data.message});
+            }
+        }
+    </script>
+</body>
+</html>

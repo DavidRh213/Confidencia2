@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Perfil de usuario - Gestiona tu cuenta y solicita permisos adicionales.">
+    <meta name="theme-color" content="#121212">
+    <title>Perfil - Confidencialidad</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <div id="header-container"></div>
+    <main class="container" id="main-content" role="main">
+        <div class="card" style="max-width:600px; margin: 2rem auto;">
+            <h2>Mi Perfil</h2>
+            
+            <form id="profileForm" onsubmit="updateProfileForm(event)" class="mt-2 text-left" style="display:none;" role="form" aria-label="Formulario de perfil">
+                <fieldset>
+                    <legend style="display:none;">Información Personal</legend>
+                    <div class="form-group mb-1">
+                        <label for="rolInput">Rol Actual:</label>
+                        <input type="text" id="rolInput" disabled style="background:var(--bg-main); opacity:0.7;" aria-label="Rol actual del usuario">
+                    </div>
+                    <div class="form-group mb-1">
+                        <label for="nombreInput">Nombre Completo</label>
+                        <input type="text" id="nombreInput" required aria-required="true" aria-label="Tu nombre completo">
+                    </div>
+                    <div class="form-group mb-1">
+                        <label for="emailInput">Correo Electrónico</label>
+                        <input type="email" id="emailInput" required aria-required="true" aria-label="Tu correo electrónico">
+                    </div>
+                    
+                    <hr style="border:1px solid var(--border); margin: 1.5rem 0;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Cambio de Contraseña</h3>
+                    
+                    <div class="form-group mb-1">
+                        <label for="oldPasswordInput">Contraseña Actual</label>
+                        <input type="password" id="oldPasswordInput" placeholder="Requerida solo si vas a cambiar la contraseña" aria-label="Tu contraseña actual">
+                    </div>
+                    <div class="form-group mb-2">
+                        <label for="passwordInput">Nueva Contraseña</label>
+                        <input type="password" id="passwordInput" placeholder="Déjalo en blanco para no cambiar" aria-label="Tu nueva contraseña">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%;" aria-label="Guardar cambios en el perfil">Guardar Cambios</button>
+                </fieldset>
+            </form>
+
+            <!-- Sección de Solicitud de Editor -->
+            <div id="editorRequestSection" style="display:none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                <h3 style="margin-bottom: 1rem;">Solicitar Acceso de Editor</h3>
+                <p class="text-muted" style="margin-bottom: 1.5rem;">Los editores pueden crear y publicar artículos en la plataforma. Cuéntanos por qué deseas acceso.</p>
+                
+                <div id="editorRequestStatus"></div>
+
+                <form id="editorRequestForm" style="display:none;" role="form" aria-label="Formulario de solicitud de editor">
+                    <fieldset>
+                        <legend style="display:none;">Solicitud de Editor</legend>
+                        <div class="form-group mb-2">
+                            <label for="editorMotivo">¿Por qué deseas ser editor?</label>
+                            <textarea id="editorMotivo" required aria-required="true" aria-label="Motivo de tu solicitud" placeholder="Cuéntanos tu experiencia y por qué te gustaría crear contenido en nuestra plataforma..." style="min-height: 120px; resize: vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;" aria-label="Enviar solicitud de editor">Enviar Solicitud</button>
+                        <button type="button" class="btn" style="width:100%; margin-top: 0.5rem;" onclick="document.getElementById('editorRequestForm').style.display='none';" aria-label="Cancelar solicitud">Cancelar</button>
+                    </fieldset>
+                </form>
+
+                <button type="button" id="btnRequestEditor" class="btn btn-primary" style="width:100%;" aria-label="Abrir formulario de solicitud de editor">Solicitar Acceso</button>
+            </div>
+
+            <div id="loadingMsg" class="text-center mt-2" role="status" aria-live="polite">Cargando datos del perfil...</div>
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/perfil.js"></script>
+    <script src="/js/editor-request.js"></script>
+    <script>
+        fetch('/pages/header.html')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('header-container').innerHTML = html;
+                // Esperar a que checkAuth() se complete antes de continuar
+                checkAuth().then(user => {
+                    requireAuth();
+                    loadProfileData();
+                    // Pequeño delay para asegurar que currentUser está actualizado
+                    setTimeout(() => {
+                        initEditorRequest();
+                    }, 100);
+                });
+            });
+    </script>
+</body>
+</html>
