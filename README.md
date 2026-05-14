@@ -70,7 +70,7 @@ Confidencialidad/
 
 ### 2. Clonar e Instalar
 ```bash
-git clone <repository-url>
+git clone https://github.com/DavidRh213/Confidencia2.git
 cd Confidencialidad
 npm install
 ```
